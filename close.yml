@@ -1,0 +1,39 @@
+name: close-review
+# 北京时间 次日 05:20（= UTC 21:20）周一至五，美股收盘后：记账 + 归因 + 收益报告 + Issue 摘要
+on:
+  schedule:
+    - cron: "20 21 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run close engine
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python cloud_engine.py close
+
+      - name: Commit state & reports
+        run: |
+          git config user.name "us-paper-bot"
+          git config user.email "us-paper-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "close $(date -u +'%F %H:%M') UTC"
+            git pull --rebase || git rebase --abort
+            git push
+          else
+            echo "no changes"
+          fi

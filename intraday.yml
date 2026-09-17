@@ -1,0 +1,39 @@
+name: intraday-trade
+# 北京时间 22:00（= UTC 14:00）周一至五，美股盘中：出场检查 + 动量入场 + 决策报告
+on:
+  schedule:
+    - cron: "0 14 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run intraday engine
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python cloud_engine.py intraday
+
+      - name: Commit state & reports
+        run: |
+          git config user.name "us-paper-bot"
+          git config user.email "us-paper-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "intraday $(date -u +'%F %H:%M') UTC"
+            git pull --rebase || git rebase --abort
+            git push
+          else
+            echo "no changes"
+          fi

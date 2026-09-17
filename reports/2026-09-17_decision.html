@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>决策报告 2026-09-17</title><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background:#0d1117; color:#e6edf3; font-family:"Segoe UI","Microsoft YaHei",sans-serif; padding:28px; line-height:1.65; }
+.wrap { max-width:920px; margin:0 auto; }
+h1 { font-size:22px; margin-bottom:4px; }
+h2 { font-size:16px; color:#8b949e; border-bottom:1px solid #21262d; padding-bottom:6px; margin:26px 0 12px; }
+.meta { color:#8b949e; font-size:12.5px; margin-bottom:18px; }
+.cards { display:flex; flex-wrap:wrap; gap:12px; }
+.card { background:#161b22; border:1px solid #21262d; border-radius:10px; padding:14px 18px; flex:1 1 150px; }
+.card .k { color:#8b949e; font-size:12px; }
+.card .v { font-size:20px; font-weight:600; margin-top:2px; }
+.card .s { font-size:12px; color:#8b949e; }
+.up { color:#f0506e; } .down { color:#3fb68b; } .flat { color:#8b949e; }
+table { width:100%; border-collapse:collapse; font-size:13px; background:#161b22; border-radius:10px; overflow:hidden; }
+th { background:#1c2128; color:#8b949e; text-align:left; padding:9px 12px; font-weight:500; }
+td { padding:9px 12px; border-top:1px solid #21262d; vertical-align:top; }
+.tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11.5px; font-weight:600; }
+.tag.buy { background:rgba(240,80,110,.15); color:#f0506e; }
+.tag.sell { background:rgba(63,182,139,.15); color:#3fb68b; }
+.tag.hold { background:rgba(139,148,158,.15); color:#8b949e; }
+.box { background:#161b22; border:1px solid #21262d; border-radius:10px; padding:14px 18px; font-size:13.5px; white-space:pre-wrap; }
+.warn { border-color:rgba(240,80,110,.4); }
+.foot { margin-top:30px; color:#6e7681; font-size:12px; border-top:1px solid #21262d; padding-top:14px; }
+svg text { font-family:"Segoe UI","Microsoft YaHei",sans-serif; }
+</style></head>
+<body><div class="wrap"><h1>📈 美股模拟盘 · 盘中决策报告</h1>
+<div class="meta">日期 2026-09-17 ｜ 策略 momentum_breakout v1 ｜ 目标日收益 +1.0% ｜ 模拟盘实验，非真实资金</div>
+<div class="cards"><div class="card"><div class="k">账户净值</div><div class="v">$1,789.04</div><div class="s">≈ ¥11,997.31</div></div><div class="card"><div class="k">现金</div><div class="v">$984.23</div></div><div class="card"><div class="k">持仓市值</div><div class="v">$804.81</div></div><div class="card"><div class="k">累计收益</div><div class="v down">-0.02%</div></div></div>
+<h2>🌐 市场环境判断</h2><div class='box'>RISK-ON（谨慎做多）｜ 美联储加息 25bps 落地（3.75%-4.00%），为三年来首次加息；市场经历初期震荡后『利空出尽』反弹：SPY +1.05%、QQQ +1.67%，费城半导体领涨，VIX 16.0（-9%）回落至正常区。
+
+关键背景：① 点阵图偏鹰（年内或再加一次），10Y 美债收益率约 5%，对高估值成长股构成中期压制；② 加息不确定性消除后，资金回流 AI/半导体——AMD 因 Citi 会议 CFO 上调 2030 年 AI TAM 预期至 2-3 万亿美元而大涨约 +5%；③ 候选池内全部标的未来 24 小时无财报（AVGO 已报、MU 9/30、AMD 11/3），无财报地雷。结论：适合动量策略轻仓试多，但必须紧止损。</div>
+<h2>🎯 今日决策（含底层逻辑）</h2><table><tr><th>操作</th><th>标的</th><th>数量</th><th>价格</th><th>金额</th><th>底层逻辑</th></tr><tr><td><span class='tag buy'>BUY</span></td><td><b>AMD</b></td><td>0.9988</td><td>$537.44</td><td>$536.80</td><td>核心仓（30%净值）。选股逻辑：全池唯一同时满足『距20日新高-1.0% + 5日动量+6.15% + RSI 60.8』的候选；催化剂为当日 Citi 会议 CFO 上调 2030 AI TAM 至 $2-3万亿，属事件驱动型动量日；半导体为今日领涨主线，与 regime 判断交叉印证。止损 $504.9（-6%）、止盈 $585.8（+9%，接近52周高 $584.7 前压力位）。</td></tr><tr><td><span class='tag buy'>BUY</span></td><td><b>FNGU</b></td><td>8.1274</td><td>$33.03</td><td>$268.45</td><td>卫星仓（15%净值）。3x FANG+ 杠杆 ETN，作为 risk-on 反弹的贝塔放大器：5日动量 +4.77%、RSI 56.4，当日 +5.16% 量能配合；重仓股 MSFT/PLTR/META/NVDA 集体走强。止损 $31.0（-6%）、止盈 $36.0（+9%，52周高 $36.78 前）。</td></tr><tr><td><span class='tag hold'>HOLD</span></td><td><b>现金</b></td><td>—</td><td>—</td><td>—</td><td>保留 55% 现金（$984）。理由：扫描显示 A 级突破信号为 0——全池仅 AMD 一只进入 20 日高点 3% 以内，多数标的仍在高点下方 4%-19%，性质属『超跌反弹』而非『突破确认』；且盘中量比因成交未走完普遍失真（<0.75），信号强度不足。留子弹等更干净的 setup，不在弱信号下强行满仓。</td></tr></table>
+<h2>💼 当前持仓</h2><table><tr><th>标的</th><th>数量</th><th>成本价</th><th>现价</th><th>浮动盈亏</th></tr><tr><td><b>AMD</b></td><td>0.9988</td><td>$537.4386</td><td>$537.17</td><td class='down'>-0.27（-0.05%）</td></tr><tr><td><b>FNGU</b></td><td>8.1274</td><td>$33.0265</td><td>$33.01</td><td class='down'>-0.13（-0.05%）</td></tr></table>
+<h2>🔍 数据审计（报价交叉验证）</h2><table><tr><th>标的</th><th>报价来源（交叉验证）</th><th>偏差</th><th>采用价</th><th>结论</th></tr><tr><td><b>AMD</b></td><td>westock $537.17 / AAII $532.88 / TickerSpark $539.22</td><td>1.18%</td><td>$537.17</td><td style='color:#f0a050'>偏差>0.5%（快涨行情中快照时差所致），按规则取三源中位数</td></tr><tr><td><b>FNGU</b></td><td>westock $32.96 / stockanalysis $33.01</td><td>0.15%</td><td>$33.01</td><td style='color:#3fb68b'>OK</td></tr><tr><td><b>USDCNY</b></td><td>westock $6.71</td><td>0.00%</td><td>$6.71</td><td style='color:#f0a050'>OK（仅汇率换算用）</td></tr></table>
+<h2>🛡️ 风控规则</h2><div class='box'>止损 -6.0% ｜ 止盈 +9.0% ｜ 时间止损 5 天 ｜ 最高点回撤 5.0% 移动止盈
+单仓上限 35% ｜ 最多 4 仓 ｜ 现金缓冲 5% ｜ 累计回撤 >20% 触发清仓红线
+过滤器：回避24小时内发布财报的标的；隔夜跳空低开超 -4% 当日不追；VIX > 30 时新开仓位减半</div>
+<h2>🧠 策略说明</h2><div class='box'>首日建仓仅 45% 仓位，是对『+1%/日激进目标』与『弱突破信号』的折中：目标要求进攻性，纪律要求承认信号质量。本日 QQQ 距 20 日新高仅 +0.05%，若明日杠杆 ETF（TQQQ/SOXL）收复 20 日新高且量能确认，将按规则加仓至 65%-80%。止损/止盈/时间止损（5天）由每日 22:00 盘中自动化与 05:20 收盘自动化双重检查执行。</div>
+<h2>⚠️ 风险提示</h2><div class='box warn'>① 鹰派 Fed + 10Y 收益率 ~5%：高估值成长股随时可能再度承压，今日反弹持续性存疑；② AMD PE(TTM) 约 130x，属高位动量股，催化剂退潮后回撤速度快；③ FNGU 为 3 倍杠杆 ETN，存在日内衰减与隔夜跳空风险；④ 量比数据因盘中失真，今日入场的量能确认并不充分；⑤ +1%/日目标（年化复利逾 10 倍）数学上不可长期持续，本盘为实验性质，请理性看待亏损可能。</div>
+<div class="foot">数据截止：2026-09-17 22:41:42 ｜ 报告由多 Agent 协作生成，报价经 ≥2 独立来源交叉验证。<br>⚠️ 本报告为模拟盘实验记录，仅供学习研究，不构成任何投资建议。日收益 +1% 为极激进的实验性目标（年化复利逾 10 倍），长期不可持续，请理性看待。</div></div></body></html>
