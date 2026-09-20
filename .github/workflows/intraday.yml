@@ -1,13 +1,24 @@
 name: intraday-trade
 # 北京时间 22:00（= UTC 14:00）周一至五，美股盘中：出场检查 + 动量入场 + 决策报告
+#
+# ⚠️ 根因修复（2026-09-19 云端定时任务被 GitHub 整次吞掉，9-18 也被延迟 3h）：
+# GitHub 的 schedule 在高负载时会延迟甚至整次丢弃，单窗口 cron 不可靠。
+# 修复手段：把单一窗口改为 14:00/14:15/14:30 UTC 三个冗余窗口，
+# 由 cloud_engine.py 内的 last_intraday_run 幂等守卫保证只有一个窗口真正执行动作。
+# 另加 concurrency 组，避免多个窗口并发 push 时互相冲突。
 on:
   schedule:
-    - cron: "0 14 * * 1-5"
+    - cron: "0,15,30 14 * * 1-5"
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
+
+# 防并发：同一时刻只允许一个 intraday 运行，新触发排队等待，避免 git push 冲突
+concurrency:
+  group: intraday-trade
+  cancel-in-progress: false
 
 jobs:
   run:
