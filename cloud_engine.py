@@ -359,6 +359,24 @@ def render_decision(cfg, us_date, regime, regime_txt, actions, scan_rows, quotes
     print("[cloud] 决策报告已生成: %s" % out.name)
 
 
+def is_trading_day(us_date):
+    """非交易日保护：休市/节假日直接跳过，避免用陈旧价记账、误触发自动迭代。
+    判定：stockanalysis 有当日 bar，或腾讯快照价相对前收发生变动（说明当日确有成交）。"""
+    try:
+        b = get_daily("SPY", 5)
+        if b and b[-1]["date"] >= us_date:
+            return True
+    except Exception as e:
+        print("[cloud] 交易日判定：SPY 日K拉取失败 %s" % e)
+    try:
+        q = get_quotes(["SPY"]).get("SPY")
+        if q and abs(q["price"] - q["prev_close"]) > 1e-6:
+            return True
+    except Exception as e:
+        print("[cloud] 交易日判定：SPY 报价拉取失败 %s" % e)
+    return False
+
+
 def diagnose(daily_ret, spy_ret, today_sells_up):
     if daily_ret >= 1.0:
         return "达标", "日收益 %+.2f%% ≥ +1%% 目标。" % daily_ret
@@ -377,6 +395,9 @@ def do_close(cfg, us_date, dry):
     st = load_state()
     if st.get("last_close_run") == us_date:
         print("[cloud] 今日已记账（last_close_run=%s），跳过" % us_date)
+        return
+    if not is_trading_day(us_date):
+        print("[cloud] %s 非美股交易日（无当日成交），跳过记账" % us_date)
         return
     symbols = list(st.get("positions", {}).keys()) + ["SPY", "QQQ"]
     bars_map = {}
@@ -413,6 +434,33 @@ def do_close(cfg, us_date, dry):
         paper.cmd_mark(cfg, held_px, us_date, cat)
     st = load_state()
 
+    # 有界自动迭代（self-tuning）：连续未达标按预设阶梯调参，全部留痕 strategy_log.json
+    if daily_ret >= cfg["target_daily_pct"]:
+        st["consecutive_miss"] = 0
+    else:
+        st["consecutive_miss"] = st.get("consecutive_miss", 0) + 1
+    tune_note = "无"
+    miss = st.get("consecutive_miss", 0)
+    ex = cfg["strategy"]["exit_rules"]
+    if miss >= 3 and ex["stop_loss_pct"] == -6.0:
+        ex["stop_loss_pct"] = -8.0
+        ex["take_profit_pct"] = 12.0
+        cfg["strategy"]["version"] += 1
+        if not dry:
+            paper.save_json(paper.CFG_P, cfg)
+            paper.cmd_adjust("连续3日未达标：止损 -6%→-8%、止盈 +9%→+12%（给动量仓更大波动空间）", "云端有界自动迭代")
+        tune_note = "触发第1档自动迭代：止损放宽至 -8%、止盈放宽至 +12%（连续 %d 日未达标）" % miss
+    elif miss >= 6 and ex["stop_loss_pct"] == -8.0 and ex["time_stop_days"] == 5:
+        ex["time_stop_days"] = 3
+        cfg["strategy"]["position_sizing"]["max_position_pct"] = 30.0
+        cfg["strategy"]["version"] += 1
+        if not dry:
+            paper.save_json(paper.CFG_P, cfg)
+            paper.cmd_adjust("连续6日未达标：时间止损 5→3 日、单仓上限 35%→30%（加快轮换+降敞口）", "云端有界自动迭代")
+        tune_note = "触发第2档自动迭代：时间止损缩至 3 日、单仓上限降至 30%（连续 %d 日未达标）" % miss
+    if not dry:
+        save_state(st)
+
     # 回测对比（简化）：等权候选池今日平均涨幅 vs 组合
     uni_ret = []
     for s in cfg["universe"][:20]:
@@ -447,7 +495,7 @@ def do_close(cfg, us_date, dry):
         "diagnosis_category": cat,
         "diagnosis": diag,
         "backtest_note": bt,
-        "strategy_changes": "无（云端引擎不自动改参，策略迭代由本地 AI 复盘或用户决策执行）",
+        "strategy_changes": tune_note + "（有界自动迭代规则：连续3日未达标→放宽止损止盈；连续6日→缩时间止损+降仓位上限；更大改动需人工决策）",
         "data_audit": [{"symbol": s, "sources": {"腾讯日K收盘": p}, "deviation_pct": 0.0,
                         "used": p, "verdict": "云端主源；本地 AI 复盘补第二源"} for s, p in close_px.items()],
     }
@@ -470,6 +518,9 @@ def do_intraday(cfg, us_date, dry):
     if st.get("last_intraday_run") == us_date:
         print("[cloud] 今日已执行（last_intraday_run=%s），跳过" % us_date)
         return
+    if not is_trading_day(us_date):
+        print("[cloud] %s 非美股交易日（无当日成交），跳过盘中交易" % us_date)
+        return
     universe = list(dict.fromkeys(cfg["universe"] + list(st.get("positions", {}).keys()) + ["SPY", "QQQ"]))
     quotes = {}
     for i in range(0, len(universe), 10):
@@ -489,7 +540,7 @@ def do_intraday(cfg, us_date, dry):
     regime, regime_txt = market_regime(quotes, bars_map.get("QQQ", []), us_date)
     print("[cloud] regime=%s | %s" % (regime, regime_txt))
 
-    if ensure_position_meta(st, us_date, quotes):
+    if ensure_position_meta(st, us_date, quotes) and not dry:
         save_state(st)
     st = load_state()
     actions = []
