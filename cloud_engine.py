@@ -13,12 +13,14 @@
 幂等：state["last_intraday_run"] / state["last_close_run"]（按美股交易日，UTC-4）
 与本地 AI Agent 的分工：本引擎是唯一自动执行者；本地 WorkBuddy 任务只做状态同步与深度叙事报告。
 """
+import base64
 import csv
 import datetime
 import io
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -31,6 +33,49 @@ TENCENT_KLINE = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={symbo
 CNBC_QUOTE = "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols={symbols}&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json"
 SA_HIST = "https://stockanalysis.com/api/symbol/s/{sym}/history?range=6M&period=Daily"
 SA_HIST_ETF = "https://stockanalysis.com/api/symbol/e/{sym}/history?range=6M&period=Daily"
+
+# 收盘记账工作流内容：用于引擎自愈（Actions 内 GITHUB_TOKEN 可能具备 workflow 写权限，
+# 而外部 PAT 缺少 workflow 作用域时对 .github/workflows/ 一律 404）
+CLOSE_WORKFLOW_YML = """name: close-accounting
+# 北京时间 次日 06:30（= UTC 22:30）周一至五，美股收盘后：记账 + 归因 + 收益报告 + Issue 摘要
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run close engine
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python cloud_engine.py close
+
+      - name: Commit state & reports
+        run: |
+          git config user.name "us-paper-bot"
+          git config user.email "us-paper-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "close $(date -u +'%F %H:%M') UTC"
+            git pull --rebase || git rebase --abort
+            git push
+          else
+            echo "no changes"
+          fi
+"""
 
 
 # ---------- 数据 ----------
@@ -359,6 +404,43 @@ def render_decision(cfg, us_date, regime, regime_txt, actions, scan_rows, quotes
     print("[cloud] 决策报告已生成: %s" % out.name)
 
 
+def ensure_close_workflow():
+    """自愈：若仓库缺少 .github/workflows/close.yml，尝试用 Actions 内置的 GITHUB_TOKEN 创建。
+    外部 PAT 无 workflow 作用域时该目录一律 404，只能靠 Actions 自身补上。全程静默失败。"""
+    token = os.environ.get("GITHUB_TOKEN")
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not token or not repo:
+        print("[cloud] 本地运行（无 GITHUB_TOKEN），跳过 close.yml 自愈")
+        return
+    url = "https://api.github.com/repos/%s/contents/.github/workflows/close.yml" % repo
+    h = {"Authorization": "Bearer " + token, "User-Agent": "us-paper-bot",
+         "Accept": "application/vnd.github+json"}
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=20) as r:
+            r.read()
+        print("[cloud] close.yml 已存在")
+        return
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            print("[cloud] close.yml 探测失败 HTTP %s" % e.code)
+            return
+    except Exception as e:
+        print("[cloud] close.yml 探测异常 %s" % e)
+        return
+    body = json.dumps({
+        "message": "auto-heal: add close-accounting workflow",
+        "content": base64.b64encode(CLOSE_WORKFLOW_YML.encode("utf-8")).decode("ascii"),
+    }).encode("utf-8")
+    try:
+        req = urllib.request.Request(url, data=body, method="PUT",
+                                     headers=dict(h, **{"Content-Type": "application/json"}))
+        with urllib.request.urlopen(req, timeout=30) as r:
+            r.read()
+        print("[cloud] 自愈成功：close.yml 已创建")
+    except Exception as e:
+        print("[cloud] 自愈失败（close.yml 未创建，将依赖 intraday 补记账兜底）：%s" % e)
+
+
 def is_trading_day(us_date):
     """非交易日保护：休市/节假日直接跳过，避免用陈旧价记账、误触发自动迭代。
     判定：stockanalysis 有当日 bar，或腾讯快照价相对前收发生变动（说明当日确有成交）。"""
@@ -391,12 +473,12 @@ def diagnose(daily_ret, spy_ret, today_sells_up):
     return "③择时/执行偏差", "组合 %+.2f%% vs SPY %+.2f%%，入场点位或仓位管理待改进。" % (daily_ret, spy_ret or 0)
 
 
-def do_close(cfg, us_date, dry):
+def do_close(cfg, us_date, dry, backfill=False):
     st = load_state()
-    if st.get("last_close_run") == us_date:
+    if st.get("last_close_run") == us_date and not backfill:
         print("[cloud] 今日已记账（last_close_run=%s），跳过" % us_date)
         return
-    if not is_trading_day(us_date):
+    if not backfill and not is_trading_day(us_date):
         print("[cloud] %s 非美股交易日（无当日成交），跳过记账" % us_date)
         return
     symbols = list(st.get("positions", {}).keys()) + ["SPY", "QQQ"]
@@ -406,26 +488,32 @@ def do_close(cfg, us_date, dry):
         try:
             bars = get_daily(s)
             bars_map[s] = bars
-            if bars and bars[-1]["date"] >= us_date:
-                close_px[s] = bars[-1]["close"]
+            # 严格取「该日期」的收盘 K 线，补记历史时不会被当日未完成 bar 污染
+            done = [x for x in bars if x["date"] <= us_date]
+            if done and done[-1]["date"] == us_date:
+                close_px[s] = done[-1]["close"]
         except Exception as e:
             print("[cloud] %s 日K拉取失败: %s" % (s, e))
     missing = [s for s in st.get("positions", {}) if s not in close_px]
-    if missing:
+    if missing and not backfill:
         quotes = get_quotes(missing)
         for s in missing:
             if s in quotes:
                 close_px[s] = quotes[s]["price"]
+    if backfill and missing:
+        print("[cloud] 补记 %s：缺 %s 的当日 K 线，放弃该日记账（宁缺勿错）" % (us_date, ",".join(missing)))
+        return
     held_px = {s: p for s, p in close_px.items() if s in st.get("positions", {})}
     if st.get("positions") and not held_px:
         print("[cloud] 无持仓收盘价，本次不记账")
         return
 
     hist_before = paper.read_csv_rows(paper.HIST_P)
-    prev_eq = float(hist_before[-1]["equity_usd"]) if hist_before else st["cash_usd"]
+    prev_rows = sorted([r for r in hist_before if r["date"] < us_date], key=lambda x: x["date"])
+    prev_eq = float(prev_rows[-1]["equity_usd"]) if prev_rows else st["cash_usd"]
     spy_ret = None
-    if "SPY" in bars_map and len(bars_map["SPY"]) >= 2:
-        b = bars_map["SPY"]
+    b = [x for x in bars_map.get("SPY", []) if x["date"] <= us_date]
+    if len(b) >= 2:
         spy_ret = (b[-1]["close"] / b[-2]["close"] - 1.0) * 100.0
     est_eq = st["cash_usd"] + sum(st["positions"][s]["qty"] * p for s, p in held_px.items())
     daily_ret = (est_eq / prev_eq - 1.0) * 100.0 if prev_eq else 0.0
@@ -465,7 +553,7 @@ def do_close(cfg, us_date, dry):
     uni_ret = []
     for s in cfg["universe"][:20]:
         try:
-            b = bars_map.get(s) or get_daily(s, 5)
+            b = [x for x in (bars_map.get(s) or get_daily(s, 5)) if x["date"] <= us_date]
             if len(b) >= 2:
                 uni_ret.append((b[-1]["close"] / b[-2]["close"] - 1.0) * 100.0)
         except Exception:
@@ -478,7 +566,7 @@ def do_close(cfg, us_date, dry):
     # kill-switch 清仓
     killed = False
     st = load_state()
-    if st.get("kill_switch") and st.get("positions"):
+    if st.get("kill_switch") and st.get("positions") and not backfill:
         quotes = get_quotes(list(st["positions"].keys()))
         for s, pos in list(st["positions"].items()):
             if s in quotes and not dry:
@@ -513,6 +601,53 @@ def do_close(cfg, us_date, dry):
     return eq_txt, killed
 
 
+def first_trade_date():
+    """trades.csv 中最早一笔成交日，作为补记账的起点"""
+    try:
+        rows = paper.read_csv_rows(paper.TRADES_P)
+        ds = [r["datetime"][:10] for r in rows if r.get("datetime")]
+        return min(ds) if ds else None
+    except Exception:
+        return None
+
+
+def pending_close_dates(us_date, limit=5):
+    """找出「有仓位但还没记过账」的交易日：以 SPY 日K为准，早于今日、晚于首笔成交"""
+    start = first_trade_date()
+    if not start:
+        return []
+    hist = paper.read_csv_rows(paper.HIST_P)
+    done = set()
+    for r in hist:
+        try:
+            if float(r.get("positions_value_usd") or 0) > 0:
+                done.add(r["date"])
+        except (TypeError, ValueError):
+            continue
+    try:
+        bars = get_daily("SPY", 40)
+    except Exception as e:
+        print("[cloud] 补记检测：SPY 日K失败 %s" % e)
+        return []
+    out = [b["date"] for b in bars
+           if start <= b["date"] < us_date and b["date"] not in done]
+    return out[-limit:]
+
+
+def backfill_pending_close(cfg, us_date, dry):
+    """兜底：close 工作流缺失时，由 intraday（或手动）补齐历史记账，按日期从旧到新"""
+    dates = pending_close_dates(us_date)
+    if not dates:
+        return
+    print("[cloud] 检测到 %d 个未记账交易日：%s" % (len(dates), ", ".join(dates)))
+    for d in dates:
+        print("[cloud] —— 补记 %s ——" % d)
+        try:
+            do_close(cfg, d, dry, backfill=True)
+        except Exception as e:
+            print("[cloud] 补记 %s 失败：%s" % (d, e))
+
+
 def do_intraday(cfg, us_date, dry):
     st = load_state()
     if st.get("last_intraday_run") == us_date:
@@ -521,6 +656,8 @@ def do_intraday(cfg, us_date, dry):
     if not is_trading_day(us_date):
         print("[cloud] %s 非美股交易日（无当日成交），跳过盘中交易" % us_date)
         return
+    ensure_close_workflow()
+    backfill_pending_close(cfg, us_date, dry)
     universe = list(dict.fromkeys(cfg["universe"] + list(st.get("positions", {}).keys()) + ["SPY", "QQQ"]))
     quotes = {}
     for i in range(0, len(universe), 10):
@@ -569,8 +706,8 @@ def do_intraday(cfg, us_date, dry):
 
 def main():
     args = [a for a in sys.argv[1:]]
-    if not args or args[0] not in ("intraday", "close"):
-        print("用法: python cloud_engine.py intraday|close [--dry-run]")
+    if not args or args[0] not in ("intraday", "close", "backfill"):
+        print("用法: python cloud_engine.py intraday|close|backfill [--dry-run]")
         return 1
     mode = args[0]
     dry = "--dry-run" in args
@@ -579,6 +716,8 @@ def main():
     print("[cloud] 模式=%s 美股交易日=%s dry_run=%s" % (mode, us_date, dry))
     if mode == "intraday":
         do_intraday(cfg, us_date, dry)
+    elif mode == "backfill":
+        backfill_pending_close(cfg, us_date, dry)
     else:
         r = do_close(cfg, us_date, dry)
         if r and not dry:
