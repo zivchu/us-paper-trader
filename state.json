@@ -1,37 +1,37 @@
 {
-  "cash_usd": 446.68,
+  "cash_usd": 202.73,
   "positions": {
-    "AMD": {
-      "qty": 0.9988,
-      "avg_cost": 537.4386,
-      "entry_date": "2026-09-17",
-      "high_since_entry": 537.4386
-    },
     "FNGU": {
       "qty": 8.1274,
       "avg_cost": 33.0265,
       "entry_date": "2026-09-17",
-      "high_since_entry": 33.0265
+      "high_since_entry": 35.86
     },
     "SMCI": {
       "qty": 6.6542,
       "avg_cost": 40.6003,
       "entry_date": "2026-09-17",
-      "high_since_entry": 40.6003
+      "high_since_entry": 41.12
     },
     "MSTR": {
-      "qty": 1.7804,
-      "avg_cost": 150.1851,
-      "entry_date": "2026-09-18",
-      "high_since_entry": 150.1851
+      "qty": 3.4515,
+      "avg_cost": 166.8334,
+      "entry_date": "2026-09-21",
+      "high_since_entry": 166.75
+    },
+    "AMD": {
+      "qty": 0.9404,
+      "avg_cost": 612.296,
+      "entry_date": "2026-09-21",
+      "high_since_entry": 611.99
     }
   },
-  "realized_pnl_usd": 0.0,
+  "realized_pnl_usd": 103.5,
   "peak_equity_usd": 1808.02,
   "strategy_version": 1,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-09-18",
-  "last_intraday_run": "2026-09-18",
+  "last_intraday_run": "2026-09-21",
   "consecutive_miss": 2
 }
