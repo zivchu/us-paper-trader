@@ -5,7 +5,7 @@
       "qty": 6.6542,
       "avg_cost": 40.6003,
       "entry_date": "2026-09-17",
-      "high_since_entry": 41.12
+      "high_since_entry": 41.43
     },
     "MSTR": {
       "qty": 3.4515,
@@ -23,7 +23,7 @@
       "qty": 1.9516,
       "avg_cost": 148.9044,
       "entry_date": "2026-09-22",
-      "high_since_entry": 148.83
+      "high_since_entry": 148.9044
     }
   },
   "realized_pnl_usd": 128.66,
@@ -32,6 +32,6 @@
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-09-18",
-  "last_intraday_run": "2026-09-22",
+  "last_intraday_run": "2026-09-23",
   "consecutive_miss": 2
 }

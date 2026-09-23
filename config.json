@@ -5,10 +5,31 @@
   "usd_cny": 6.706,
   "start_date": "2026-09-17",
   "target_daily_pct": 1.0,
-  "universe": ["TQQQ", "SQQQ", "SOXL", "SOXS", "UPRO", "SPXL", "TSLL", "NVDL", "FNGU", "LABU", "NVDA", "TSLA", "AMD", "PLTR", "COIN", "MSTR", "AVGO", "MU", "HOOD", "SMCI"],
+  "universe": [
+    "TQQQ",
+    "SQQQ",
+    "SOXL",
+    "SOXS",
+    "UPRO",
+    "SPXL",
+    "TSLL",
+    "NVDL",
+    "FNGU",
+    "LABU",
+    "NVDA",
+    "TSLA",
+    "AMD",
+    "PLTR",
+    "COIN",
+    "MSTR",
+    "AVGO",
+    "MU",
+    "HOOD",
+    "SMCI"
+  ],
   "strategy": {
     "name": "momentum_breakout",
-    "version": 1,
+    "version": 2,
     "entry_rules": [
       "收盘价距20日新高 < 3%",
       "5日动量 > 3%",
@@ -17,8 +38,8 @@
       "市场 regime 非 risk-off（VIX、QQQ 趋势确认）"
     ],
     "exit_rules": {
-      "stop_loss_pct": -6.0,
-      "take_profit_pct": 9.0,
+      "stop_loss_pct": -8.0,
+      "take_profit_pct": 12.0,
       "time_stop_days": 5,
       "trail_from_high_pct": 5.0
     },
@@ -43,7 +64,11 @@
     "kill_switch": "净值自峰值回撤超过 max_drawdown_pct 时强制清仓观望并推送警报"
   },
   "data": {
-    "xv_sources": ["westock", "stockanalysis", "ifind"],
+    "xv_sources": [
+      "westock",
+      "stockanalysis",
+      "ifind"
+    ],
     "xv_tolerance_pct": 0.5,
     "note": "美股报价以 westock（腾讯自选股）为主源，stockanalysis.com / WebSearch 为副源；偏差>0.5% 取第三源并用中位数，全部记录进数据审计表"
   },
