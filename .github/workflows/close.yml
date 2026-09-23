@@ -1,0 +1,47 @@
+name: close-trade
+# 美股收盘后记账：北京时间 04:00（= UTC 20:00 = 美东 16:00 收盘）周一至五
+# 职责：拉收盘价 → mark 记账 → 规则化归因 → 简化回测对比 → 渲染收益报告 → 开 GitHub Issue 摘要
+# 与 intraday 同理：GitHub 定时任务偶发丢弃，故 20:00/20:15/20:30 UTC 三个冗余窗口；
+# 由 cloud_engine.py 内的 last_close_run 幂等守卫保证只有一个窗口真正记账。
+on:
+  schedule:
+    - cron: "0,15,30 20 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+# 防并发：同一时刻只允许一个 close 运行，新触发排队等待，避免 git push 冲突
+concurrency:
+  group: close-trade
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run close engine
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python cloud_engine.py close
+
+      - name: Commit state & reports
+        run: |
+          git config user.name "us-paper-bot"
+          git config user.email "us-paper-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "close $(date -u +'%F %H:%M') UTC"
+            git pull --rebase || git rebase --abort
+            git push
+          else
+            echo "no changes"
+          fi
