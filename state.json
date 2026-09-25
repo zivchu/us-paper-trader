@@ -1,37 +1,37 @@
 {
-  "cash_usd": 196.12,
+  "cash_usd": 456.29,
   "positions": {
-    "MSTR": {
-      "qty": 3.4515,
-      "avg_cost": 166.8334,
-      "entry_date": "2026-09-21",
-      "high_since_entry": 169.76
-    },
     "AMD": {
       "qty": 0.9404,
       "avg_cost": 612.296,
       "entry_date": "2026-09-21",
-      "high_since_entry": 619.59
+      "high_since_entry": 630.77
     },
     "SOXL": {
       "qty": 1.9516,
       "avg_cost": 148.9044,
       "entry_date": "2026-09-22",
-      "high_since_entry": 148.9044
+      "high_since_entry": 152.8
     },
     "FNGU": {
       "qty": 8.0446,
       "avg_cost": 35.4777,
       "entry_date": "2026-09-24",
-      "high_since_entry": 35.46
+      "high_since_entry": 35.88
+    },
+    "TQQQ": {
+      "qty": 3.6118,
+      "avg_cost": 79.95,
+      "entry_date": "2026-09-25",
+      "high_since_entry": 79.91
     }
   },
-  "realized_pnl_usd": 134.31,
+  "realized_pnl_usd": 107.41,
   "peak_equity_usd": 1918.25,
   "strategy_version": 1,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-09-24",
-  "last_intraday_run": "2026-09-24",
+  "last_intraday_run": "2026-09-25",
   "consecutive_miss": 4
 }
