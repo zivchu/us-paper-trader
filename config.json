@@ -29,7 +29,7 @@
   ],
   "strategy": {
     "name": "momentum_breakout",
-    "version": 2,
+    "version": 3,
     "entry_rules": [
       "收盘价距20日新高 < 3%",
       "5日动量 > 3%",
@@ -40,11 +40,11 @@
     "exit_rules": {
       "stop_loss_pct": -8.0,
       "take_profit_pct": 12.0,
-      "time_stop_days": 5,
+      "time_stop_days": 3,
       "trail_from_high_pct": 5.0
     },
     "position_sizing": {
-      "max_position_pct": 35.0,
+      "max_position_pct": 30.0,
       "max_positions": 4,
       "cash_buffer_pct": 5.0
     },
