@@ -31,7 +31,7 @@
   "strategy_version": 2,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
-  "last_close_run": "2026-10-01",
+  "last_close_run": "2026-10-02",
   "last_intraday_run": "2026-10-02",
-  "consecutive_miss": 9
+  "consecutive_miss": 10
 }
