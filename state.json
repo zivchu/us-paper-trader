@@ -11,19 +11,19 @@
       "qty": 7.3185,
       "avg_cost": 38.7193,
       "entry_date": "2026-10-02",
-      "high_since_entry": 38.7
+      "high_since_entry": 40.17
     },
     "SMCI": {
       "qty": 6.4619,
       "avg_cost": 43.8519,
       "entry_date": "2026-10-02",
-      "high_since_entry": 43.83
+      "high_since_entry": 43.8519
     },
     "NVDA": {
       "qty": 1.2071,
       "avg_cost": 234.7473,
       "entry_date": "2026-10-02",
-      "high_since_entry": 234.63
+      "high_since_entry": 238.9
     }
   },
   "realized_pnl_usd": 79.52,
@@ -32,6 +32,6 @@
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-02",
-  "last_intraday_run": "2026-10-02",
+  "last_intraday_run": "2026-10-05",
   "consecutive_miss": 10
 }
