@@ -1,37 +1,37 @@
 {
-  "cash_usd": 755.97,
+  "cash_usd": 769.5,
   "positions": {
-    "NVDL": {
-      "qty": 7.3185,
-      "avg_cost": 38.7193,
-      "entry_date": "2026-10-02",
-      "high_since_entry": 40.39
-    },
-    "SMCI": {
-      "qty": 6.4619,
-      "avg_cost": 43.8519,
-      "entry_date": "2026-10-02",
-      "high_since_entry": 43.8519
-    },
-    "NVDA": {
-      "qty": 1.2071,
-      "avg_cost": 234.7473,
-      "entry_date": "2026-10-02",
-      "high_since_entry": 239.82
-    },
     "SOXL": {
       "qty": 1.7211,
       "avg_cost": 166.4032,
       "entry_date": "2026-10-06",
-      "high_since_entry": 166.32
+      "high_since_entry": 166.4032
+    },
+    "SMCI": {
+      "qty": 6.2776,
+      "avg_cost": 45.3226,
+      "entry_date": "2026-10-07",
+      "high_since_entry": 45.3
+    },
+    "TQQQ": {
+      "qty": 3.4045,
+      "avg_cost": 83.5718,
+      "entry_date": "2026-10-07",
+      "high_since_entry": 83.53
+    },
+    "FNGU": {
+      "qty": 7.6692,
+      "avg_cost": 37.0985,
+      "entry_date": "2026-10-07",
+      "high_since_entry": 37.08
     }
   },
-  "realized_pnl_usd": 103.01,
+  "realized_pnl_usd": 120.0,
   "peak_equity_usd": 1919.72,
   "strategy_version": 2,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-06",
-  "last_intraday_run": "2026-10-06",
+  "last_intraday_run": "2026-10-07",
   "consecutive_miss": 12
 }
