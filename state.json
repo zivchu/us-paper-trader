@@ -1,5 +1,5 @@
 {
-  "cash_usd": 1000.55,
+  "cash_usd": 723.76,
   "positions": {
     "TQQQ": {
       "qty": 3.4045,
@@ -17,7 +17,13 @@
       "qty": 1.3792,
       "avg_cost": 198.019,
       "entry_date": "2026-10-08",
-      "high_since_entry": 197.92
+      "high_since_entry": 207.2
+    },
+    "TSLL": {
+      "qty": 26.3981,
+      "avg_cost": 10.4852,
+      "entry_date": "2026-10-09",
+      "high_since_entry": 10.48
     }
   },
   "realized_pnl_usd": 53.24,
@@ -26,6 +32,6 @@
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-08",
-  "last_intraday_run": "2026-10-08",
+  "last_intraday_run": "2026-10-09",
   "consecutive_miss": 14
 }
