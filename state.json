@@ -7,6 +7,6 @@
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-16",
-  "last_intraday_run": "2026-10-16",
-  "consecutive_miss": 5
+  "last_intraday_run": "2026-10-19",
+  "consecutive_miss": 6
 }
