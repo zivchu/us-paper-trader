@@ -1,25 +1,25 @@
 {
-  "cash_usd": 1509.5,
+  "cash_usd": 1518.14,
   "positions": {
     "TSLL": {
-      "qty": 12.2021,
-      "avg_cost": 10.9155,
-      "entry_date": "2026-10-26",
-      "high_since_entry": 11.62
+      "qty": 11.6726,
+      "avg_cost": 11.4757,
+      "entry_date": "2026-10-29",
+      "high_since_entry": 11.47
     },
     "TSLA": {
-      "qty": 0.3377,
-      "avg_cost": 394.4071,
-      "entry_date": "2026-10-26",
-      "high_since_entry": 407.27
+      "qty": 0.3307,
+      "avg_cost": 405.0024,
+      "entry_date": "2026-10-29",
+      "high_since_entry": 404.8
     }
   },
-  "realized_pnl_usd": -13.55,
+  "realized_pnl_usd": -3.41,
   "peak_equity_usd": 1919.72,
   "strategy_version": 2,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-28",
-  "last_intraday_run": "2026-10-28",
+  "last_intraday_run": "2026-10-29",
   "consecutive_miss": 19
 }
