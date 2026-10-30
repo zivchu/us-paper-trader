@@ -1,17 +1,23 @@
 {
-  "cash_usd": 1518.14,
+  "cash_usd": 1384.81,
   "positions": {
     "TSLL": {
       "qty": 11.6726,
       "avg_cost": 11.4757,
       "entry_date": "2026-10-29",
-      "high_since_entry": 11.47
+      "high_since_entry": 11.4757
     },
     "TSLA": {
       "qty": 0.3307,
       "avg_cost": 405.0024,
       "entry_date": "2026-10-29",
-      "high_since_entry": 404.8
+      "high_since_entry": 405.0024
+    },
+    "SQQQ": {
+      "qty": 3.1289,
+      "avg_cost": 42.6113,
+      "entry_date": "2026-10-30",
+      "high_since_entry": 42.59
     }
   },
   "realized_pnl_usd": -3.41,
@@ -20,6 +26,6 @@
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-10-29",
-  "last_intraday_run": "2026-10-29",
+  "last_intraday_run": "2026-10-30",
   "consecutive_miss": 20
 }
