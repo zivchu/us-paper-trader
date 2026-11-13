@@ -1,25 +1,12 @@
 {
-  "cash_usd": 1242.77,
-  "positions": {
-    "AMD": {
-      "qty": 0.4548,
-      "avg_cost": 585.5926,
-      "entry_date": "2026-11-12",
-      "high_since_entry": 585.3
-    },
-    "AVGO": {
-      "qty": 0.7305,
-      "avg_cost": 364.5422,
-      "entry_date": "2026-11-12",
-      "high_since_entry": 364.36
-    }
-  },
-  "realized_pnl_usd": -14.03,
+  "cash_usd": 1736.84,
+  "positions": {},
+  "realized_pnl_usd": -52.58,
   "peak_equity_usd": 1919.72,
   "strategy_version": 2,
   "kill_switch": false,
   "created_at": "2026-09-17 22:26:48",
   "last_close_run": "2026-11-12",
-  "last_intraday_run": "2026-11-12",
+  "last_intraday_run": "2026-11-13",
   "consecutive_miss": 50
 }
